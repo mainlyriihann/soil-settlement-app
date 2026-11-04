@@ -1,0 +1,6 @@
+fastapi>=0.110
+uvicorn>=0.29
+sqlalchemy>=2.0
+numpy>=1.26
+# Only if you use PostgreSQL instead of the default SQLite file:
+# psycopg[binary]>=3.1
