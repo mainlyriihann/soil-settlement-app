@@ -4,11 +4,11 @@ function run_case(ks, mv, th, drainage, u0, outfile)
 %   Runs consolidation_model and writes the result as JSON.
 
     drainage = char(drainage);
-    [tv, uav, t_years, settlement, tv_emp, uav_emp] = consolidation_model(ks, mv, th, drainage, u0);
+    [tv, uav, t_hours, settlement, tv_t, uav_t] = consolidation_model(ks, mv, th, drainage, u0);
 
     out = struct('tv', tv(:)', 'uav', uav(:)', ...
-                 't_years', t_years(:)', 'settlement', settlement(:)', ...
-                 'tv_emp', tv_emp(:)', 'uav_emp', uav_emp(:)');
+                 't_hours', t_hours(:)', 'settlement', settlement(:)', ...
+                 'tv_t', tv_t(:)', 'uav_t', uav_t(:)');
 
     fid = fopen(outfile, 'w');
     if fid < 0

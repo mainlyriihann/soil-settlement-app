@@ -30,8 +30,8 @@ def now():
 
 class Case(Base):
     """One row per distinct set of inputs. The result is zlib-compressed JSON, so big curves stay small."""
-    __tablename__ = "consolidation_cases"
-    __table_args__ = (UniqueConstraint("params_key", name="uq_params"),)
+    __tablename__ = "consolidation_cases_hours"
+    __table_args__ = (UniqueConstraint("params_key", name="uq_params_hours"),)
     id = Column(Integer, primary_key=True)
     params_key = Column(String(300), nullable=False)  # canonical JSON of the inputs
     status = Column(String(10), nullable=False, default="pending")  # pending|running|done|failed

@@ -7,63 +7,94 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #f6f5f1; --card: #ffffff; --text: #1f2421; --muted: #66706a; --line: #dedbd2;
-    --accent: #2f6f5e; --accent-text: #ffffff; --warn: #a4552b; --grid: #e8e5dc; --series2: #b5651d;
+    --bg: #f4f5f2; --card: #ffffff; --subcard: #fafaf8; --text: #1a211e; --muted: #626d67; --line: #e2e0d8;
+    --accent: #256353; --accent-hover: #1d4f42; --accent-soft: #eaf3f0; --accent-text: #ffffff;
+    --warn: #b44b22; --grid: #eceae2; --series2: #d96b27;
+    --shadow: 0 2px 10px rgba(20, 30, 25, 0.05);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #151816; --card: #1e2220; --text: #e8ebe7; --muted: #98a39c; --line: #343a37;
-            --accent: #5fb59d; --accent-text: #0f1512; --warn: #e0875a; --grid: #2c322f; --series2: #e0a15e; }
+    :root {
+      --bg: #121514; --card: #1a1f1d; --subcard: #212724; --text: #e8edea; --muted: #95a39b; --line: #2d3531;
+      --accent: #52b79a; --accent-hover: #67c5aa; --accent-soft: #1d2e29; --accent-text: #0c1411;
+      --warn: #e5875a; --grid: #252c28; --series2: #f09a54;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
-         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  .sub { color: var(--muted); margin: 0 0 20px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end; }
-  label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
-  select, input { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line);
-                  background: var(--bg); color: var(--text); font: inherit; }
-  button { padding: 10px 14px; border: 0; border-radius: 8px; background: var(--accent);
-           color: var(--accent-text); font: inherit; font-weight: 600; cursor: pointer; }
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1060px; margin: 0 auto; padding: 32px 20px 56px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0; font-size: 0.95rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 20px; box-shadow: var(--shadow); }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 14px; align-items: end; }
+  label { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  select, input { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line);
+                  background: var(--subcard); color: var(--text); font: inherit; transition: border-color .15s, box-shadow .15s; }
+  select:focus, input:focus { outline: none; border-color: var(--accent);
+                              box-shadow: 0 0 0 3px rgba(37, 99, 83, 0.15); }
+  button { width: 100%; padding: 10px 16px; border: 0; border-radius: 8px; background: var(--accent);
+           color: var(--accent-text); font: inherit; font-weight: 600; cursor: pointer;
+           transition: background .15s, transform .05s; }
+  button:hover:not(:disabled) { background: var(--accent-hover); }
+  button:active:not(:disabled) { transform: translateY(1px); }
   button:disabled { opacity: .55; cursor: wait; }
-  #status { margin: 14px 0 0; min-height: 1.5em; color: var(--muted); }
+  #status { margin: 14px 0 0; min-height: 1.4em; font-size: .88rem; color: var(--muted);
+            display: flex; align-items: center; gap: 6px; }
+  #status:empty { display: none; }
   #status.error { color: var(--warn); white-space: pre-wrap; }
-  .badge { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: .8rem; margin-right: 6px;
-           border: 1px solid var(--line); }
-  #result { display: none; margin-top: 16px; }
-  .answer { font-size: 1.15rem; margin: 0 0 14px; }
-  .answer b { font-size: 1.6rem; }
-  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-  .chartbox { position: relative; height: 340px; }
-  h2 { font-size: 1rem; margin: 0 0 8px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: .75rem; font-weight: 600;
+           text-transform: uppercase; letter-spacing: 0.03em; background: var(--accent-soft);
+           color: var(--accent); border: 1px solid var(--line); }
+  #result { display: none; margin-top: 18px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .metric { background: var(--subcard); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .metric .k { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .metric .v { font-size: 1.4rem; font-weight: 700; margin-top: 2px; color: var(--text); }
+  .metric.primary { background: var(--accent-soft); border-color: var(--accent); }
+  .metric.primary .v { color: var(--accent); }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+  .chart-card { background: var(--subcard); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .chartbox { position: relative; height: 330px; }
+  h2 { font-size: .95rem; font-weight: 600; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; }
+  .dot-hint { font-size: .78rem; font-weight: 400; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+  .dot-hint::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--series2); display: inline-block; }
 </style>
 </head>
 <body>
 <main>
-  <h1>Soil settlement calculator</h1>
-  <p class="sub">Enter the soil properties to get the U<sub>av</sub>–T<sub>v</sub> curve and the settlement after x years.</p>
+  <header>
+    <h1>1D Soil Consolidation &amp; Settlement Calculator</h1>
+    <p class="sub">Analytical Terzaghi solution — enter soil parameters to compute the U<sub>av</sub>–T<sub>v</sub> curve and settlement over time.</p>
+  </header>
 
   <div class="card">
     <form id="form">
-      <div><label for="ks">Permeability ks (m/s)</label><input id="ks" type="number" step="any" required></div>
-      <div><label for="mv">Compressibility mv (m²/kN)</label><input id="mv" type="number" step="any" required></div>
-      <div><label for="thickness">Soil thickness (m)</label><input id="thickness" type="number" step="any" required></div>
-      <div><label for="u0">Initial pore pressure u0 (kN/m²)</label><input id="u0" type="number" step="any" required></div>
-      <div><label for="drainage">Drainage</label><select id="drainage"></select></div>
-      <div><label for="years">Settlement after (years)</label>
-           <input id="years" type="number" min="0" step="any" value="10"></div>
+      <div><label for="ks">Permeability k<sub>s</sub> (m/s)</label><input id="ks" type="number" step="any" required></div>
+      <div><label for="mv">Compressibility m<sub>v</sub> (m²/kN)</label><input id="mv" type="number" step="any" required></div>
+      <div><label for="thickness">Soil thickness H (m)</label><input id="thickness" type="number" step="any" required></div>
+      <div><label for="u0">Initial pore pressure u<sub>0</sub> (kN/m²)</label><input id="u0" type="number" step="any" required></div>
+      <div><label for="drainage">Drainage condition</label><select id="drainage"></select></div>
+      <div><label for="hours">Settlement after (hours)</label>
+           <input id="hours" type="number" min="0" step="any" value="10"></div>
       <div><button id="go" type="submit">Calculate</button></div>
     </form>
     <p id="status" role="status" aria-live="polite"></p>
   </div>
 
   <div id="result" class="card">
-    <p class="answer" id="answer"></p>
+    <div id="answer" class="metrics"></div>
     <div class="charts">
-      <div><h2>U<sub>av</sub> vs T<sub>v</sub></h2><div class="chartbox"><canvas id="c1"></canvas></div></div>
-      <div><h2>Settlement vs time</h2><div class="chartbox"><canvas id="c2"></canvas></div></div>
+      <div class="chart-card">
+        <h2><span>U<sub>av</sub> vs T<sub>v</sub></span><span class="dot-hint">Selected time</span></h2>
+        <div class="chartbox"><canvas id="c1"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h2><span>Settlement vs Time</span><span class="dot-hint">Selected time</span></h2>
+        <div class="chartbox"><canvas id="c2"></canvas></div>
+      </div>
     </div>
   </div>
 </main>
@@ -110,35 +141,77 @@ function baseOptions(xTitle, yTitle) {
 
 function render() {
   if (!data) return;
-  const x = parseFloat($("years").value);
-  const maxYears = data.max_years;
+  const tSeries = data.t_hours || (data.t_days ? data.t_days.map((d) => d * 24) : (data.t_years ? data.t_years.map((y) => y * 8766) : null));
+  if (!tSeries) return;
+  const x = parseFloat($("hours").value);
+  const maxHours = data.max_hours ?? Math.floor(tSeries[tSeries.length - 1]);
   const valid = Number.isFinite(x) && x >= 0;
-  const s = valid ? interp(x, data.t_years, data.settlement) : null;
+  const s = valid ? interp(x, tSeries, data.settlement) : null;
 
-  if (!valid) $("answer").textContent = "Enter a number of years (0 or more).";
-  else if (x > data.t_years[data.t_years.length - 1])
-    $("answer").innerHTML = `Data only covers up to ${maxYears} years. Settlement at the end: <b>${s.toFixed(1)} mm</b>.`;
-  else $("answer").innerHTML = `Settlement after ${x} year${x === 1 ? "" : "s"}: <b>${s.toFixed(1)} mm</b>`;
+  const tEnd = tSeries[tSeries.length - 1];
+  const hasT = valid && data.tv_t;
+  const xc = Math.min(x, tEnd);
+  const tvx = hasT ? interp(xc, tSeries, data.tv_t) : null;
+  const uavx = hasT ? interp(xc, tSeries, data.uav_t) : null;
+  const sFinal = data.settlement[data.settlement.length - 1];
+
+  if (!valid) {
+    $("answer").innerHTML = `<div class="metric"><div class="k">Notice</div><div class="v" style="font-size:1rem">Enter a valid time (0 or more hours).</div></div>`;
+  } else {
+    const timeLabel = x > tEnd ? `At ${maxHours} h (max)` : `After ${x} hour${x === 1 ? "" : "s"}`;
+    $("answer").innerHTML = `
+      <div class="metric primary"><div class="k">Settlement (${timeLabel})</div><div class="v">${s.toFixed(2)} mm</div></div>
+      <div class="metric"><div class="k">Consolidation U<sub>av</sub></div><div class="v">${hasT ? (uavx * 100).toFixed(1) + " %" : "—"}</div></div>
+      <div class="metric"><div class="k">Time Factor T<sub>v</sub></div><div class="v">${hasT ? tvx.toPrecision(3) : "—"}</div></div>
+      <div class="metric"><div class="k">Ultimate Settlement S<sub>c</sub></div><div class="v">${sFinal.toFixed(2)} mm</div></div>
+    `;
+  }
 
   const accent = css("--accent"), marker = css("--series2");
 
-  // chart 1: Uav vs Tv, Uav increases downwards as in consolidation plots
+  // chart 1: Uav vs Tv. Capped at 100% consolidation (end of data.tv) so it never drags along the bottom axis.
   if (chart1) chart1.destroy();
+  const tvMaxCurve = data.tv[data.tv.length - 1];
+  const tvPlot = hasT ? Math.min(tvx, tvMaxCurve) : null;
+  const uavPlot = hasT ? (tvx >= tvMaxCurve ? data.uav[data.uav.length - 1] : uavx) : null;
   const o1 = baseOptions("Time factor, Tv (log scale)", "Average degree of consolidation, Uav");
-  o1.scales.x = { ...o1.scales.x, type: "logarithmic", min: 1e-4 };
   o1.scales.y.reverse = true;
-  chart1 = new Chart($("c1"), { type: "line", options: o1, data: { datasets: [
-    { data: pairs(data.tv, data.uav), borderColor: accent, borderWidth: 2, pointRadius: 0 },
-    ...(data.tv_emp ? [{ data: pairs(data.tv_emp, data.uav_emp), borderColor: marker, borderWidth: 2,
-                         borderDash: [6, 4], pointRadius: 0 }] : []) ] } });
+  o1.scales.x = { ...o1.scales.x, type: "logarithmic", min: 1e-4, max: tvMaxCurve };
+  const full = pairs(data.tv, data.uav);
+  const sets1 = [{ data: full, borderColor: css("--line"), borderWidth: 2, pointRadius: 0 }];
+  if (data.tv_emp) sets1.push({ data: pairs(data.tv_emp, data.uav_emp), borderColor: marker, borderWidth: 1.5,
+                                borderDash: [6, 4], pointRadius: 0 });
+  if (hasT) {
+    const upto = full.filter((p) => p.x > 0 && p.x < tvPlot);
+    upto.push({ x: tvPlot, y: uavPlot });
+    sets1.push({ data: upto, borderColor: accent, borderWidth: 3, pointRadius: 0 });
+    sets1.push({ data: [{ x: tvPlot, y: uavPlot }], type: "scatter", backgroundColor: marker, borderColor: marker, pointRadius: 6 });
+  }
+  chart1 = new Chart($("c1"), { type: "line", options: o1, data: { datasets: sets1 } });
 
-  // chart 2: settlement vs time, with the chosen time marked
+  // chart 2: settlement vs time, stopped at 100% consolidation (uav >= 0.999) so the curve isn't squashed against t = 0
   if (chart2) chart2.destroy();
-  const o2 = baseOptions("Time (years)", "Settlement (mm)");
+  let endIdx = tSeries.length - 1;
+  if (data.uav_t) {
+    const idx = data.uav_t.findIndex((u) => u >= 0.999);
+    if (idx > 0) endIdx = idx;
+  } else if (data.tv_t) {
+    const idx = data.tv_t.findIndex((v) => v >= tvMaxCurve);
+    if (idx > 0) endIdx = idx;
+  }
+  const tCurve = tSeries.slice(0, endIdx + 1);
+  const sCurve = data.settlement.slice(0, endIdx + 1);
+  const tMaxCurve = tCurve[tCurve.length - 1];
+  const o2 = baseOptions("Time (hours)", "Settlement (mm)");
   o2.scales.y.reverse = true;
-  const sets = [{ data: pairs(data.t_years, data.settlement), borderColor: accent, borderWidth: 2, pointRadius: 0 }];
-  if (valid) sets.push({ data: [{ x: Math.min(x, data.t_years[data.t_years.length - 1]), y: s }],
-                         type: "scatter", backgroundColor: marker, borderColor: marker, pointRadius: 6 });
+  o2.scales.x = { ...o2.scales.x, max: tMaxCurve };
+  const sets = [{ data: pairs(tCurve, sCurve), borderColor: accent, borderWidth: 2, pointRadius: 0 }];
+  if (valid) {
+    const xPlot = Math.min(x, tMaxCurve);
+    const sPlot = x >= tMaxCurve ? sCurve[sCurve.length - 1] : s;
+    sets.push({ data: [{ x: xPlot, y: sPlot }],
+                type: "scatter", backgroundColor: marker, borderColor: marker, pointRadius: 6 });
+  }
   chart2 = new Chart($("c2"), { type: "line", options: o2, data: { datasets: sets } });
 
   $("result").style.display = "block";
@@ -180,8 +253,8 @@ $("form").addEventListener("submit", async (e) => {
   } catch (err) { $("go").disabled = false; setStatus(err.message, true); }
 });
 
-// Changing "years" just re-reads the stored curve - no new request.
-$("years").addEventListener("input", render);
+// Changing "hours" just re-reads the stored curve - no new request.
+$("hours").addEventListener("input", render);
 
 (async () => {
   try {

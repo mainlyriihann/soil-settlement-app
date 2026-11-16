@@ -12,8 +12,8 @@ PARAMS = {
 }
 DRAINAGE_TYPES = ["double", "single"]
 
-# Longest time (years) the settlement curve covers (the MATLAB model runs to 100 years).
-MAX_YEARS = 100
+# Longest time (hours) the settlement curve covers (the MATLAB model runs to 876600 hours).
+MAX_HOURS = 876600
 
 # "mock"   -> same maths in Python, no MATLAB needed (for trying the app)
 # "batch"  -> runs `matlab -batch ...` for every new case (simplest real mode)

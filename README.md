@@ -1,6 +1,6 @@
 # Soil settlement web app
 
-Enter soil properties (ks, mv, thickness, u0, drainage) -> get the Uav-Tv curve and the settlement after x years.
+Enter soil properties (ks, mv, thickness, u0, drainage) -> get the Uav-Tv curve and the settlement after x hours.
 
 ```
 Browser  ->  FastAPI  ->  database has (soil, force)?  --yes-->  return it
@@ -35,7 +35,7 @@ Demo mode runs the same maths in Python, not MATLAB.
 
 Already done for `final_analytical.m`: it was turned into `backend/matlab/consolidation_model.m`
 (a function), called by `backend/matlab/run_case.m`. Inputs: `ks`, `mv`, soil thickness, `u0`, drainage
-(single/double). Outputs: Uav-Tv curve, and settlement (mm) = Uav * mv * u0 * thickness vs time (0-100 years).
+(single/double). Outputs: Uav-Tv curve, and settlement (mm) = Uav * mv * u0 * thickness vs time (0-876600 hours).
 
 Test it in MATLAB first:
 
@@ -83,6 +83,6 @@ The table is created automatically.
   the same new case share one run, and your MATLAB licence is never used twice at once.
 - **Data size.** Each curve is downsampled to `MAX_POINTS` (2000) and stored zlib-compressed, one row
   per case, so the database stays small. Raise `MAX_POINTS` if you need more detail.
-- **Settlement after x years** is interpolated in the browser from the stored series, so changing x
+- **Settlement after x hours** is interpolated in the browser from the stored series, so changing x
   needs no new request.
 - **Not internet-ready as is.** There are no logins or rate limits; add them before exposing it publicly.

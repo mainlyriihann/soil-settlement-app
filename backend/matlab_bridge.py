@@ -1,10 +1,10 @@
 """The only place that knows how to get numbers out of MATLAB.
 
 Contract: MATLAB's run_case(ks, mv, th, drainage, u0, outfile) writes a JSON file:
-    {"tv": [...], "uav": [...], "t_years": [...], "settlement": [...],
+    {"tv": [...], "uav": [...], "t_hours": [...], "settlement": [...],
      "tv_emp": [...], "uav_emp": [...]}            (the last two are optional)
     tv, uav               -> the Uav vs Tv curve (same length)
-    t_years, settlement   -> settlement (mm) vs time in years (same length)
+    t_hours, settlement   -> settlement (mm) vs time in hours (same length)
 """
 import json
 import math
@@ -108,8 +108,8 @@ def _mock(p):
     cv = p["ks"] / (yw * p["mv"])
     th, u0 = p["thickness"], p["u0"]
     d = th / 2 if p["drainage"] == "double" else th
-    big_h = 2 * d
-    sec_year = 365.25 * 24 * 3600
+    big_h = 2 * d  # 2*d (= th for double drainage, 2*th for single drainage)
+    sec_hour = 3600
 
     z = np.linspace(0, th, 101)[:, None]
     k = (2 * np.arange(0, 1001) + 1)[None, :]
@@ -117,20 +117,23 @@ def _mock(p):
     coef = (4 / np.pi) * u0 / k
     rate = (k * np.pi / big_h) ** 2 * cv
 
-    time = np.concatenate([[0.0], np.logspace(-1, np.log10(100 * sec_year), 600)])
+    tv_grid = np.logspace(-4, np.log10(3), 200)
+    time = np.unique(np.concatenate([[0.0], tv_grid * d**2 / cv,
+                                     np.logspace(-1, np.log10(config.MAX_HOURS * sec_hour), 300)]))
     uav = np.zeros(len(time))
     for i in range(1, len(time)):
         u = (s * (coef * np.exp(-rate * time[i]))).sum(axis=1)
         uav[i] = 1 - trapezoid(u, z[:, 0]) / (u0 * th)
-    uav = np.clip(uav, 0, 1)
 
-    ue = np.arange(0.01, 0.995, 0.01)
-    te = np.where(ue <= 0.6, np.pi / 4 * ue**2, -0.085 - 0.933 * np.log10(1 - ue))
+    tv1 = cv * time / d**2
+    keep_tv = tv1 <= 3
+    keep_t = time <= config.MAX_HOURS * sec_hour * (1 + 1e-9)
+
     return {
-        "tv": (cv * time / d**2).tolist(), "uav": uav.tolist(),
-        "t_years": (time / sec_year).tolist(),
-        "settlement": (uav * p["mv"] * u0 * th * 1000).tolist(),
-        "tv_emp": te.tolist(), "uav_emp": ue.tolist(),
+        "tv": tv1[keep_tv].tolist(), "uav": uav[keep_tv].tolist(),
+        "t_hours": (time[keep_t] / sec_hour).tolist(),
+        "settlement": (uav[keep_t] * p["mv"] * u0 * th * 1000).tolist(),
+        "tv_t": tv1[keep_t].tolist(), "uav_t": uav[keep_t].tolist(),
     }
 
 
@@ -159,10 +162,15 @@ def _series(raw, xk, yk, required=True):
 
 def _clean(raw: dict) -> dict:
     out = {}
-    for xk, yk, req in (("tv", "uav", True), ("t_years", "settlement", True), ("tv_emp", "uav_emp", False)):
+    for xk, yk, req in (("tv", "uav", True), ("t_hours", "settlement", True), ("tv_emp", "uav_emp", False)):
         s = _series(raw, xk, yk, req)
         if s is not None:
             out[xk] = [round(float(v), 10) for v in s[0]]
             out[yk] = [round(float(v), 10) for v in s[1]]
-    out["max_years"] = math.floor(out["t_years"][-1])
+    # Tv and Uav at each settlement time, so the page can mark the chosen time on the Uav-Tv curve
+    for name in ("tv_t", "uav_t"):
+        if name in raw:
+            ys = _series({"x": raw["t_hours"], "y": raw[name]}, "x", "y")
+            out[name] = [round(float(v), 10) for v in ys[1]]
+    out["max_hours"] = math.floor(out["t_hours"][-1])
     return out
